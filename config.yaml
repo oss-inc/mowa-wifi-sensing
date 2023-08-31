@@ -1,0 +1,33 @@
+# dataloader parameters
+dataset_path: ./csi_dataset/domain_B
+activity_labels: ['empty', 'sit', 'stand', 'walk']
+bandwidth: 20MHz
+window_size: 10
+
+# GPU
+cuda: True
+gpu_ids: [0]  # set the GPU ids to use, e.g. [0] or [1, 2]
+
+# train parameters
+train_proportion: 0.8
+epoch: 50
+batch_size: 64
+lr: 0.001 
+save_path: ./checkpoint/svl_vit
+
+# test parameters
+save_model_path: ./checkpoint/svl_vit/49.tar
+
+# transformer parameters
+in_channels: 1
+patch_size: 5
+embed_dim: 36
+num_layers: 8
+num_heads: 9
+mlp_dim: 32
+
+# number of subcarriers
+20MHz: 64
+40MHz: 128
+80MHz: 256
+160MHz: 512

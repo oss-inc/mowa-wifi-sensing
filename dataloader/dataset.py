@@ -124,9 +124,10 @@ class SVLDataset(data.Dataset):
             windows = list()
             df = self.data_df[atv]
 
-            # One-hot-encoding
-            y_label = np.zeros(len(self.labels))
-            y_label[idx] = 1.0
+            # # One-hot-encoding
+            # y_label = np.zeros(len(self.labels))
+            # y_label[idx] = 1.0
+            y_label = idx
 
             for i in range(self.min_num_wd):
                 wd = df.iloc[i*self.win_size:i*self.win_size + self.win_size, 2:]
@@ -140,10 +141,10 @@ class SVLDataset(data.Dataset):
             
             if self.mode == 'train':
                 windows = windows[:self.num_train]
-                data_y.extend([y_label for _ in range(self.num_train)])
+                data_y.extend([y_label for _ in range(len(windows))])
             elif self.mode == 'test':
                 windows = windows[self.num_train:]
-                data_y.extend([y_label for _ in range(self.num_test)])
+                data_y.extend([y_label for _ in range(len(windows))])
             
             if self.gan == 'false':
                 win_data_x.extend(windows)
