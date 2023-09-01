@@ -84,9 +84,8 @@ class Trainer:
                 train_loss += loss.item()
                 
                 # Calculate accuracy
-                outputs = F.log_softmax(outputs, dim=0)
+                outputs = F.log_softmax(outputs, dim=1)
                 y_hat = torch.from_numpy(np.array([np.argmax(outputs.cpu().data.numpy()[ii]) for ii in range(len(outputs))]))
-                #data_y = torch.from_numpy(np.array([np.argmax(data_y.cpu().data.numpy()[ii]) for ii in range(len(data_y))]))
                 
                 train_acc += torch.eq(y_hat, data_y.cpu()).float().mean()
                 total_iter += 1

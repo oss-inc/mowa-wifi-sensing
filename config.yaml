@@ -11,7 +11,7 @@ gpu_ids: [0]  # set the GPU ids to use, e.g. [0] or [1, 2]
 # train parameters
 train_proportion: 0.8
 epoch: 50
-batch_size: 64
+batch_size: 1
 lr: 0.001 
 save_path: ./checkpoint/svl_vit
 
@@ -31,3 +31,12 @@ mlp_dim: 32
 40MHz: 128
 80MHz: 256
 160MHz: 512
+
+# Server
+server_ip: '210.102.178.109'
+server_port: 8000
+
+# Client
+client_ip: '172.16.229.210'
+client_port: 8000
+client_mac_address: 'dca6328e1dcb'
