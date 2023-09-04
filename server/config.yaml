@@ -1,6 +1,6 @@
 # dataloader parameters
-dataset_path: ./csi_dataset/domain_B
-activity_labels: ['empty', 'sit', 'stand', 'walk']
+dataset_path: ./csi_dataset/domain_A
+activity_labels: ['empty', 'sit', 'stand', 'walk', 'fall']
 bandwidth: 20MHz
 window_size: 10
 
@@ -33,10 +33,10 @@ mlp_dim: 32
 160MHz: 512
 
 # Server
-server_ip: '192.9.203.146'
-server_port: 9009
+server_ip: 'xxx.xxx.xxx.xxx'
+server_port: 1111
 
 # Client
-client_ip: '172.16.229.210'
-client_port: 9009
-client_mac_address: 'dca6328e1dcb'
+client_ip: 'xxx.xxx.xxx.xxx'
+client_port: 1111
+client_mac_address: 'xxxxxxxxxxxx'

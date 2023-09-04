@@ -10,8 +10,8 @@ import socket
 import pickle
 
 # For send CSI data(server IP/Port)
-HOST = '192.9.203.146'
-PORT = 9009
+HOST = 'xxx.xxx.xxx.xxx'
+PORT = 1111
 
 
 # for sampling
