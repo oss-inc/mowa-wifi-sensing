@@ -67,8 +67,6 @@ server_ip: 'xxx.xxx.xxx.xxx'
 server_port: xxxx
 
 # Client
-client_ip: 'xxx.xxx.xxx.xxx'
-client_port: xxxx
 client_mac_address: 'xxxxxxxxx'
 ```
 

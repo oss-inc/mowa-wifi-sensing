@@ -37,6 +37,4 @@ server_ip: 'xxx.xxx.xxx.xxx'
 server_port: 1111
 
 # Client
-client_ip: 'xxx.xxx.xxx.xxx'
-client_port: 1111
 client_mac_address: 'xxxxxxxxxxxx'
