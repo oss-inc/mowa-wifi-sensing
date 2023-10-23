@@ -67,7 +67,8 @@ class Trainer_FSL:
         for epoch in range(self.epochs) :
             running_loss = 0.0
             running_acc = 0.0
-
+            
+            # Episode: epoch
             for episode in tqdm.tqdm(range(epoch_size), desc="Epoch {:d} train".format(epoch + 1)):
                 sample = extract_train_sample(self.way, self.support, self.query, data_x, data_y)
                 self.optimizer.zero_grad()

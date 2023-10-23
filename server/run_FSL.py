@@ -6,7 +6,8 @@ import pandas as pd
 import pickle
 import torch.nn.functional as F
 from os.path import exists
-from runner.utils import get_config
+from dataloader.dataset import FSLDataset
+from runner.utils import get_config, extract_test_sample
 from model.vit import ViT
 import runner.proto as proto
 
@@ -20,7 +21,7 @@ mac = config['application']['client']['mac']
 
 global P_COUNT
 P_COUNT = 0
-window_size = config['application']['client']['window_size']
+window_size = config['FSL']['dataset']['window_size']
 num_sub = config['subcarrier'][config['application']['client']["bandwidth"]]
 activities = config['application']['client']["activity_labels"]
 
@@ -51,6 +52,20 @@ if use_cuda:
     model.to(config['GPU']['gpu_ids'][0])
 print('======> Success')
 
+
+# Create Prototypes before process real-time CSI
+n_way = config['FSL']['test']['n_way']
+n_support = config['FSL']['test']['n_support']
+n_query = config['FSL']['test']['n_query']
+
+support_data = FSLDataset(config['FSL']['dataset']['test_dataset_path'],
+                          win_size=window_size,
+                          mode='test', 
+                          mac=False, time=False
+                          )
+support_x, support_y = support_data.data_x, support_data.data_y
+support_sample = extract_test_sample(n_way, n_support, n_query, support_x, support_y, config)
+z_proto = model.create_protoNet(support_sample)
 
 mac_dict = {}
 mac_dict[mac] = pd.DataFrame(columns=columns)
@@ -89,8 +104,10 @@ class MyTcpHandler(socketserver.BaseRequestHandler):
                     if use_cuda:
                         c_data = c_data.cuda(0)
 
-                    pred = model(c_data)
-                    print('Predict result: {}'.format(pred))
+                    output = model.proto_test(c_data, z_proto, n_way, 0)
+                    y_hat = output['y_hat']
+
+                    print('Predict result: {}'.format(activities[y_hat[0]]))
 
                     # Drop first row
                     mac_dict[mac].drop(0, inplace=True)
@@ -100,13 +117,13 @@ class MyTcpHandler(socketserver.BaseRequestHandler):
 
                 elif len(mac_dict[mac]) == window_size and P_COUNT == window_size//2:
                     c_data = np.array(mac_dict[mac])
+                    # c_data shape: [1, 1, window_size, num_subcarriers]
                     c_data = torch.from_numpy(c_data).unsqueeze(0).unsqueeze(0).float()
                     if use_cuda:
                         c_data = c_data.cuda(0)
 
-                    outputs = model(c_data)
-                    outputs = F.log_softmax(outputs, dim=1)
-                    y_hat = torch.from_numpy(np.array([np.argmax(outputs.cpu().data.numpy()[ii]) for ii in range(len(outputs))]))
+                    output = model.proto_test(c_data, z_proto, n_way, 0)
+                    y_hat = output['y_hat']
 
                     print('Predict result: {}'.format(activities[y_hat[0]]))
 

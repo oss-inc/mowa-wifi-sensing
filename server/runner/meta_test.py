@@ -42,7 +42,7 @@ class Tester_FSL:
         print("Cuda: ", torch.cuda.is_available())
         print("Device id: ", self.device_ids[0])
 
-        print(f"Load Train Dataset.. # window_size:{self.win_size}")
+        print(f"Load Test Dataset.. # window_size:{self.win_size}")
         test_data = FSLDataset(self.config['FSL']['dataset']['test_dataset_path'],
                                 win_size=self.win_size,
                                 mode='test', 
@@ -71,19 +71,15 @@ class Tester_FSL:
         with torch.no_grad():
             for episode in tqdm(range(self.config['FSL']['test']['epoch_size']), desc="test"):
                 for label, q_samples in enumerate(query_samples):
-                    for i in range(0, len(q_samples) // self.way):
-                        output = self.net.proto_test(q_samples[i * self.way:(i + 1) * self.way], z_proto, self.way, label)
-                        
-                        pred_labels = output['y_hat'].cpu().int().squeeze()  # assuming output has shape (n_way, 1)
-                        total_predictions += pred_labels.shape[0]
-                        total_correct_predictions += (pred_labels == label).sum().item()
+                    for i in range(0, self.query):
+                        output = self.net.proto_test(q_samples[i], z_proto, self.way, label)
+                        pred_label = output['y_hat'] # only one class result
 
-                        for pred_label in pred_labels:
-                            conf_mat[label, pred_label.item()] += 1
+                        conf_mat[label][pred_label] += 1
 
                         running_acc += output['acc']
                         total_count += 1
-            print(conf_mat)
+        print(conf_mat)
         if total_count == 0:
             avg_acc = 0
         else :

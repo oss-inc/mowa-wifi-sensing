@@ -65,7 +65,7 @@ class ProtoNet(nn.Module):
         loss_val = -log_p_y.gather(2, target_inds).squeeze().view(-1).mean()
         _, y_hat = log_p_y.max(2)
         acc_val = torch.eq(y_hat, target_inds.squeeze()).float().mean()  # y_hat과 gt 같은지 비교
-
+      
         return loss_val, {
             'loss': loss_val.item(),
             'acc': acc_val.item(),
@@ -105,26 +105,29 @@ class ProtoNet(nn.Module):
         return z_proto
 
     def proto_test(self, query_sample, z_proto, n_way, gt):
-        sample_images = query_sample.cuda(0)
+        sample_images = query_sample.unsqueeze(0).cuda(0)
         n_query = 1
 
-        gt_mat = torch.tensor([gt] * n_way).cuda(0)
+        #gt_mat = torch.tensor([gt] * n_way).cuda(0)
 
-        x_query = sample_images
-        x_query = x_query.contiguous().view(*x_query.size())
+        x_query = sample_images.contiguous().view(*sample_images.size())
         z_query = self.encoder.forward(x_query)
         # compute distances
         dists = euclidean_dist(z_query, z_proto)
 
         # compute probabilities
-        log_p_y = F.log_softmax(-dists, dim=1).view(n_way, n_query, -1)
-        _, y_hat = log_p_y.max(2)
-        acc_val = torch.eq(y_hat, gt_mat).float().mean()  # y_hat과 gt 같은지 비교
+        log_p_y = F.log_softmax(-dists, dim=1)
+        y_hat = np.argmax(log_p_y[0].cpu())
+        
+        acc = 0
+        # y_hat과 gt 같은지 비교
+        if y_hat == gt:
+            acc = 1
 
-        print('label:{}, acc:{}'.format(gt, acc_val))
+        print('label:{}, correct:{}'.format(gt, acc))
 
         return {
-            'acc': acc_val.item(),
+            'acc': acc,
             'y_hat': y_hat
             # ,'target':target
         }
