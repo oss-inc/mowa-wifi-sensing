@@ -4,9 +4,9 @@ import torch
 import torch.utils.data as data
 import numpy as np
 import pandas as pd
-from runner.utils import get_config
+from runner.utils import get_config, torch_seed
 
-random.seed(50)
+torch_seed(40)
 
 # CSI dataset loader for Meta-Learning
 class CSIDataset(data.Dataset):
@@ -14,18 +14,24 @@ class CSIDataset(data.Dataset):
         self.mode = mode
         self.win_size = win_size
         self.config = get_config('config.yaml')
-        self.labels = self.config['activity_labels']
+
+        if self.mode == "train" :
+            self.labels = self.config['FSL']['dataset']['train_activity_labels']
+
+        elif self.mode == "test" : 
+            self.labels = self.config['FSL']['dataset']['test_activity_labels']
+
         self.amp = amp
 
         # Read CSI file and convert to dataframe
         self.data_df = dict()
-        
+        self.min_num_wd = int(1e9)  # for balanced dataset class
+
         for atv in self.labels:
             f_path = os.path.join(data_path, atv + '.csv')
             self.data_df[atv] = pd.read_csv(f_path)
 
         # Generated window size CSI data
-        self.min_num_wd = int(1e9)  # for balanced dataset class
         self.data = self.generate_windows()
 
         # Variables for episodic learning
@@ -55,12 +61,12 @@ class CSIDataset(data.Dataset):
             
             win_dict[atv] = np.array(windows)
         return win_dict
-        
 
     def __len__(self):
         return self.num_episode
 
     def __getitem__(self, idx):
+
         # idx means index of episode
         sample = dict()
 
@@ -83,20 +89,20 @@ class CSIDataset(data.Dataset):
 
 # Supervised learning dataset
 class SVLDataset(data.Dataset):
-    def __init__(self, data_path, win_size=10, mode='train', train_proportion=0.8, amp=True, gan='false'):
+    def __init__(self, data_path, win_size=10, mode='train', train_proportion=0.8, amp=True):
         self.mode = mode
         self.win_size = win_size
         self.config = get_config('config.yaml')
-        self.labels = self.config['activity_labels']
+        self.labels = self.config['SVL']['dataset']['activity_labels']
         self.amp = amp
         self.train_proportion = train_proportion
-        self.gan = gan
 
         # Read CSI file and convert to dataframe
         self.data_df = dict()
         self.min_data_len = int(1e9)
 
         for atv in self.labels:
+            # print(data_path, atv + '.csv')
             f_path = os.path.join(data_path, atv + '.csv')
             self.data_df[atv] = pd.read_csv(f_path)
             self.min_data_len = min(self.min_data_len, len(self.data_df[atv]))
@@ -114,18 +120,12 @@ class SVLDataset(data.Dataset):
         win_data_x = list()
         data_y = list()
         atvs = list()
-        if self.gan == 'false':
-            atvs = list(self.data_df.keys())
-        elif self.gan == 'true':
-            atvs = [self.config['label_A'], self.config['label_B']]
+        atvs = list(self.data_df.keys())
 
         for idx, atv in enumerate(atvs):
             windows = list()
             df = self.data_df[atv]
 
-            # # One-hot-encoding
-            # y_label = np.zeros(len(self.labels))
-            # y_label[idx] = 1.0
             y_label = idx
 
             for i in range(self.min_num_wd):
@@ -145,72 +145,83 @@ class SVLDataset(data.Dataset):
                 windows = windows[self.num_train:]
                 data_y.extend([y_label for _ in range(len(windows))])
             
-            if self.gan == 'false':
-                win_data_x.extend(windows)
-            elif self.gan == 'true':
-                win_data_x.append(windows)
-        
-        if self.gan == 'false':
-            return np.array(win_data_x), np.array(data_y)
-        elif self.gan == 'true':
-            return np.array(win_data_x[0]), np.array(win_data_x[1])
+            win_data_x.extend(windows)
+        return np.array(win_data_x), np.array(data_y)
 
     def __len__(self):
-        if self.gan == 'false':
-            return len(self.data_x)
-        elif self.gan == 'true':
-            return min(len(self.data_x), len(self.data_y))
+        return len(self.data_x)
 
     def __getitem__(self, idx):
         return self.data_x[idx], self.data_y[idx]
-       
-    
-# Noise dataset
-# Read npy files
-# amplitude noise data
-class NoiseDataset(data.Dataset):
-    def __init__(self, win_size=10, mode='train'):
+
+# Few learning dataset
+class FSLDataset(data.Dataset) :
+    def __init__(self, data_path, win_size=10, mode='train', amp=True, mac=True, time=True):
         self.mode = mode
         self.win_size = win_size
         self.config = get_config('config.yaml')
-        self.data_path = self.config['train_noise_path']
-        if mode == 'test':
-            self.data_path = self.config['test_noise_path']
-        self.label_A = self.config['label_A']
-        self.label_B = self.config['label_B']
+        
+        if self.mode == "train" :
+            self.labels = self.config['FSL']['dataset']['train_activity_labels']
 
-        # Read npy files
-        self.data_A = np.load(os.path.join(self.data_path, self.label_A+'_noise.npy'))
-        self.data_B = np.load(os.path.join(self.data_path, self.label_B+'_noise.npy'))
+        elif self.mode == "test" : 
+            self.labels = self.config['FSL']['dataset']['test_activity_labels']       
+             
+        self.amp = amp
+        self.mac = mac
+        self.time = time
+
+        # Read CSI file and convert to dataframe
+        self.data_df = dict()
+        self.min_data_len = int(1e9)
+
+        for atv in self.labels:
+            f_path = os.path.join(data_path, atv + '.csv')
+            self.data_df[atv] = pd.read_csv(f_path)
+            self.min_data_len = min(self.min_data_len, len(self.data_df[atv]))
+
+        # Generated window size CSI data
+        self.min_num_wd = self.min_data_len // self.win_size  # for balanced dataset class
+
+        self.data_x, self.data_y = self.generate_windows()
+
+    def generate_windows(self) :
+        win_data_x = list()
+        data_y = list()
+        atvs = list()
+
+        atvs = list(self.data_df.keys())
+
+        for idx, atv in enumerate(atvs):
+            windows = list()
+            df = self.data_df[atv]
+
+            y_label = idx
+
+            for i in range(self.min_num_wd):
+                if self.mac == True and self.time == True :
+                    wd = df.iloc[i*self.win_size:i*self.win_size + self.win_size, 2:]
+                elif self.mac == False and self.time == False :
+                    wd = df.iloc[i*self.win_size:i*self.win_size + self.win_size, 0:]
+                wd = wd.astype(complex)
+            
+                if self.amp is True:
+                    wd = wd.apply(lambda x: x.abs())
+                
+                wd = wd.to_numpy()
+                windows.append(wd)
+            win_data_x.extend(windows)
+            data_y.extend([y_label for _ in range(len(windows))])
+
+        return np.array(win_data_x), np.array(data_y)
 
     def __len__(self):
-        return min(len(self.data_B), len(self.data_A))
+            return len(self.data_x)
 
     def __getitem__(self, idx):
-        return self.data_A[idx], self.data_B[idx]
-    
+        return self.data_x[idx], self.data_y[idx]
 
-class FakeDataset(data.Dataset):
-    def __init__(self, data_path, win_size=10):
-        self.win_size = win_size
-        self.config = get_config('config.yaml')
-        self.data_path = data_path
-        self.labels = self.config['activity_labels']
-        self.label = 'sit'
 
-        # Read npy files
-        self.data = np.load(os.path.join(self.data_path, f'fake_{self.label}.npy'))
-
-        idx = self.labels.index(self.label)
-        self.y_label = np.zeros(len(self.labels))
-        self.y_label[idx] = 1.0
-
-    def __len__(self):
-        return len(self.data)
-
-    def __getitem__(self, idx):
-        return self.data[idx], self.y_label
-    
 
 if __name__ == '__main__':
     data = CSIDataset('../csi_dataset/domain_B',5,10,win_size=10,mode='train')
