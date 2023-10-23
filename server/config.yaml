@@ -1,40 +1,102 @@
-# dataloader parameters
-dataset_path: ./csi_dataset/domain_A
-activity_labels: ['empty', 'sit', 'stand', 'walk', 'fall']
-bandwidth: 20MHz
-window_size: 10
+# GPU config
+GPU : 
+  cuda: True
+  gpu_ids: [0]  # set the GPU ids to use, e.g. [0] or [1, 2]
 
-# GPU
-cuda: True
-gpu_ids: [0]  # set the GPU ids to use, e.g. [0] or [1, 2]
+# SVL parameters
+SVL : 
+  dataset : 
+    dataset_path: ./csi_dataset/domain_A
+    activity_labels: ['empty', 'sit', 'stand', 'walk']
+    window_size: 10
+    bandwidth: 20MHz
+    train_proportion: 0.8
 
-# train parameters
-train_proportion: 0.8
-epoch: 50
-batch_size: 1
-lr: 0.001 
-save_path: ./checkpoint/svl_vit
+  train : 
+    epoch: 50
+    batch_size: 1
+    lr: 0.001 
+    step_size : 10
+    gamma : 0.9
+    save_path: ./checkpoint/svl_vit
 
-# test parameters
-save_model_path: ./checkpoint/svl_vit/49.tar
+  test : 
+    save_model_path: ./checkpoint/svl_vit/49.tar
 
-# transformer parameters
-in_channels: 1
-patch_size: 5
-embed_dim: 36
-num_layers: 8
-num_heads: 9
-mlp_dim: 32
+# FSL parameters
+FSL :
+  dataset : 
+    train_dataset_path: ./csi_dataset/domain_A
+    test_dataset_path: ./csi_dataset/domain_C
+    train_activity_labels: ['empty', 'sit', 'stand', 'walk']
+    test_activity_labels: ['empty', 'sit', 'stand', 'walk', 'fall']
+    window_size: 10
+    bandwidth: 20MHz
+    
+  train : 
+    epoch: 50
+    epoch_size: 500
+    lr: 0.0001 
+    step_size : 10
+    gamma : 0.9
 
-# number of subcarriers
-20MHz: 64
-40MHz: 128
-80MHz: 256
-160MHz: 512
+    n_way : 4
+    n_support :  30
+    n_query :  10
+    save_path: ./checkpoint/few_vit
 
-# Server
-server_ip: 'xxx.xxx.xxx.xxx'
-server_port: 1111
+  test : 
+    epoch_size: 1
 
-# Client
-client_mac_address: 'xxxxxxxxxxxx'
+    n_way : 5
+    n_support :  30
+    n_query :  15
+    save_model_path: ./checkpoint/few_vit/best_model.pt
+
+# Model parameters
+model : 
+  ViT :
+    in_channels: 1
+    patch_size: 5
+    embed_dim: 36
+    num_layers: 8
+    num_heads: 9
+    mlp_dim: 32
+
+# number of subcarriers information
+subcarrier : 
+  20MHz: 64
+  40MHz: 128
+  80MHz: 256
+  160MHz: 512
+
+application :
+  # Server
+  server : 
+    ip: 'xxx.xxx.xxx.xxx'
+    port: 1111
+
+  # Client
+  client  :
+    mac : 'xxxxxxxxxxxx'
+    window_size: 10
+    bandwidth : 20MHz
+    activity_labels: ['empty', 'sit', 'stand', 'walk', 'fall']
+  
+  model : 
+    ViT :
+      in_channels: 1
+      patch_size: 5
+      embed_dim: 36
+      num_layers: 8
+      num_heads: 9
+      mlp_dim: 32
+
+  SVL : 
+    save_model_path: ./checkpoint/svl_vit/49.tar
+
+  FSL : 
+    save_model_path : ./checkpoint/few_vit/best_model.pt
+
+
+

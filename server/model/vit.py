@@ -112,6 +112,7 @@ if __name__ == '__main__':
         num_classes=24,
         in_size=[2, 1024]
     ).to("cuda")
+    
     print(summary(model, (1, 2, 1024)))
 
     input = torch.randn(1, 1, 2, 1024).cuda()
