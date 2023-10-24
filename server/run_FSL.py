@@ -103,14 +103,13 @@ class MyTcpHandler(socketserver.BaseRequestHandler):
                 if len(mac_dict[mac]) == window_size and P_COUNT == window_size:
                     c_data = np.array(mac_dict[mac])
 
-                    c_data = torch.from_numpy(c_data).unsqueeze(0).unsqueeze(0).float()
-                    if use_cuda:
-                        c_data = c_data.cuda(0)
+                    c_data = torch.from_numpy(c_data).unsqueeze(0).float()
+                    
+                    with torch.no_grad():
+                        output = model.proto_test(c_data, z_proto, n_way, 0)
+                        y_hat = output['y_hat']
 
-                    output = model.proto_test(c_data, z_proto, n_way, 0)
-                    y_hat = output['y_hat']
-
-                    print('Predict result: {}'.format(activities[y_hat[0]]))
+                    print('Predict result: {}'.format(activities[y_hat.item()]))
 
                     # Drop first row
                     mac_dict[mac].drop(0, inplace=True)
@@ -121,14 +120,13 @@ class MyTcpHandler(socketserver.BaseRequestHandler):
                 elif len(mac_dict[mac]) == window_size and P_COUNT == window_size//2:
                     c_data = np.array(mac_dict[mac])
                     # c_data shape: [1, 1, window_size, num_subcarriers]
-                    c_data = torch.from_numpy(c_data).unsqueeze(0).unsqueeze(0).float()
-                    if use_cuda:
-                        c_data = c_data.cuda(0)
+                    c_data = torch.from_numpy(c_data).unsqueeze(0).float()
 
-                    output = model.proto_test(c_data, z_proto, n_way, 0)
-                    y_hat = output['y_hat']
+                    with torch.no_grad():
+                        output = model.proto_test(c_data, z_proto, n_way, 0)
+                        y_hat = output['y_hat']
 
-                    print('Predict result: {}'.format(activities[y_hat[0]]))
+                    print('Predict result: {}'.format(activities[y_hat.item()]))
 
                     # Drop first row
                     mac_dict[mac].drop(0, inplace=True)

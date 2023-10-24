@@ -74,8 +74,8 @@ subcarrier :
 application :
   # Server
   server : 
-    ip: '192.168.0.225'
-    port: 9010
+    ip: '192.9.203.146'
+    port: 142
 
   # Client
   client  :

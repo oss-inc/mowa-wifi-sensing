@@ -124,7 +124,7 @@ class ProtoNet(nn.Module):
         if y_hat == gt:
             acc = 1
 
-        print('label:{}, correct:{}'.format(gt, acc))
+        #print('label:{}, correct:{}'.format(gt, acc))
 
         return {
             'acc': acc,
