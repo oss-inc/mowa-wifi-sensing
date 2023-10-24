@@ -54,6 +54,7 @@ print('======> Success')
 
 
 # Create Prototypes before process real-time CSI
+print('======> Create Prototypes')
 n_way = config['FSL']['test']['n_way']
 n_support = config['FSL']['test']['n_support']
 n_query = config['FSL']['test']['n_query']
@@ -64,8 +65,10 @@ support_data = FSLDataset(config['FSL']['dataset']['test_dataset_path'],
                           mac=False, time=False
                           )
 support_x, support_y = support_data.data_x, support_data.data_y
+support_x = np.expand_dims(support_x, axis=1)
 support_sample = extract_test_sample(n_way, n_support, n_query, support_x, support_y, config)
 z_proto = model.create_protoNet(support_sample)
+print('======> Success')
 
 mac_dict = {}
 mac_dict[mac] = pd.DataFrame(columns=columns)

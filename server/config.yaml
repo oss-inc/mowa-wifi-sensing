@@ -74,12 +74,12 @@ subcarrier :
 application :
   # Server
   server : 
-    ip: 'xxx.xxx.xxx.xxx'
-    port: 1111
+    ip: '192.168.0.225'
+    port: 9010
 
   # Client
   client  :
-    mac : 'xxxxxxxxxxxx'
+    mac : 'b4b024d555e7'
     window_size: 10
     bandwidth : 20MHz
     activity_labels: ['empty', 'sit', 'stand', 'walk', 'fall']
