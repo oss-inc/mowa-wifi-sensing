@@ -96,5 +96,5 @@ class Trainer_FSL:
 
         if best_model is not None:
             os.makedirs(self.config['FSL']['train']['save_path'], exist_ok=True)
-            torch.save(best_model, os.path.join(self.config['FSL']['train']['save_path'], "best_model.pt"))
-            print("Best model saved at", os.path.join(self.config['FSL']['train']['save_path'], "best_model.pt"))
+            torch.save(best_model, os.path.join(self.config['FSL']['train']['save_path'], "fsl_best_model.pt"))
+            print("Best model saved at", os.path.join(self.config['FSL']['train']['save_path'], "fsl_best_model.pt"))

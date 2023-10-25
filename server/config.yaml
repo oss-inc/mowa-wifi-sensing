@@ -21,7 +21,7 @@ SVL :
     save_path: ./checkpoint/svl_vit
 
   test : 
-    save_model_path: ./checkpoint/svl_vit/49.tar
+    save_model_path: ./checkpoint/svl_vit/svl_best_model.pt
 
 # FSL parameters
 FSL :
@@ -52,7 +52,7 @@ FSL :
     n_way : 5
     n_support :  30
     n_query :  15
-    save_model_path: ./checkpoint/few_vit/best_model.pt
+    save_model_path: ./checkpoint/few_vit/fsl_best_model.pt
 
 # Model parameters
 model : 

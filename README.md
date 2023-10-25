@@ -3,7 +3,7 @@
 The mowa-wifi-sensing module performs real-time Wi-Fi CSI-based human activity recognition. CSI collected from the [Nexmon extractor](https://github.com/seemoo-lab/nexmon_csi) is delivered to the server using socket communication, and the server uses window-size-CSI-data as an input value for the trained activity classification model.
 
  >**※ Notice ※**  
->*The current version provides a supervised learning model, and will be replaced with a model applying meta-learning techniques in the future. (Expected to solve the problem of **Fall activity class** data sampling.)*
+>*The current version supports both **supervised learning** and **meta-learning**.*
 
 ## Activity Classes
 - Empty (default)
@@ -42,19 +42,28 @@ pip install -r requirements.txt
 server
    |——————csi_dataset
    |        └——————domain_A
-   |                └——————empty.csv
-   |                └——————sit.csv
-   |                └——————stand.csv
-   |                └——————walk.csv
-   |                └——————fall.csv
+   |        |       └——————empty.csv
+   |        |       └——————sit.csv
+   |        |       └——————stand.csv
+   |        |       └——————walk.csv
+   |        |       └——————fall.csv
+   |        └——————domain_B
+   |        └——————realtime
+   |
    |——————checkpoint
    |        └——————svl_vit
-   |                └——————49.tar
+   |        |       └——————svl_best_model.pt
+   |        └——————few_vit
+   |                └——————fsl_best_model.pt
    |——————dataloader
    |——————model
    |——————plot
    └——————runner
 ```
+4. In the realtime folder, new data collected from a different domain is stored.   
+   - This data is **used for generating prototypes** using a model trained through meta-learning.  
+   - Therefore, *it only requires few-shot data*, and having enough to create a support set for each class is sufficient.
+   - For demo, you can insert either ```domain_A``` or ```domain_B``` data to run it.
 
 ### Usage
 ---
@@ -72,7 +81,12 @@ client_mac_address: 'xxxxxxxxx'
 
 2. Running socket server for real-time activity recognition:
 ```bash
-python run.py
+# Use supervised learning based model
+python run_SVL.py
+```
+```bash
+# Use meta-learning(few-shot learning) based model
+python run_FSL.py
 ```
 ---
 **Using customized model**
@@ -80,11 +94,21 @@ python run.py
 
 2. Model train:
 ```bash
-python main.py train
+# Supervised learning
+python main.py --learning SVL --mode train
+```
+```bash
+# Meta-learning
+python main.py --learning FSL --mode train
 ```
 3. Model evaluation:
 ```bash
-python main.py test
+# Supervised learning
+python main.py --learning SVL --mode test
+```
+```bash
+# Meta-learning
+python main.py --learning FSL --mode test
 ```
 
 ### 2. Extractor
