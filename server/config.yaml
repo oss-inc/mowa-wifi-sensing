@@ -7,7 +7,7 @@ GPU :
 SVL : 
   dataset : 
     dataset_path: ./csi_dataset/domain_A
-    activity_labels: ['empty', 'sit', 'stand', 'walk']
+    activity_labels: ['empty', 'sit', 'stand', 'walk', 'fall']
     window_size: 10
     bandwidth: 20MHz
     train_proportion: 0.8
@@ -74,8 +74,8 @@ subcarrier :
 application :
   # Server
   server : 
-    ip: '192.9.203.146'
-    port: 142
+    ip: 'xxx.xxx.xxx.xxx'
+    port: 1111
 
   # Client
   client  :
