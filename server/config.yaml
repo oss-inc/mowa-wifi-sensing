@@ -27,7 +27,7 @@ SVL :
 FSL :
   dataset : 
     train_dataset_path: ./csi_dataset/domain_A
-    test_dataset_path: ./csi_dataset/domain_C
+    test_dataset_path: ./csi_dataset/domain_B
     support_dataset_path: ./csi_dataset/realtime
     train_activity_labels: ['empty', 'sit', 'stand', 'walk']
     test_activity_labels: ['empty', 'sit', 'stand', 'walk', 'fall']
