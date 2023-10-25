@@ -6,7 +6,7 @@ mowa-wifi-sensing 모듈은 MOWA 프로젝트의 Wi-Fi Sensing 기능을 담당�
 >*현재 버전은 **supervised learning**과 **meta-learning** 방식을 모두 지원합니다.*
 
 ## README 영어 버전
-🌎 [README.md 영어 버전](https://github.com/oss-inc/.github/blob/main/profile/README.md)  
+🌎 [README.md 영어 버전](https://github.com/oss-inc/mowa-wifi-sensing/blob/main/README.md)  
 <br/>
 
 ## 행동 클래스

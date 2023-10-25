@@ -6,7 +6,7 @@ The mowa-wifi-sensing module performs real-time Wi-Fi CSI-based human activity r
 >*The current version supports both **supervised learning** and **meta-learning**.*
 
 ## README Korean version
-🇰🇷  [README.md in Korean](https://github.com/oss-inc/.github/blob/main/profile/README_KO.md)
+🇰🇷  [README.md in Korean](https://github.com/oss-inc/mowa-wifi-sensing/blob/main/README_KO.md)
 <br/>
 
 ## Activity Classes
